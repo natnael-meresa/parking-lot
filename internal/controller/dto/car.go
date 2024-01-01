@@ -1,9 +1,9 @@
 package dto
 
 type Car struct {
-	ID           int    `json:"id"`
-	Model        string `json:"model"`
-	Registration string `json:"registration"`
+	ID           int    `json:"id,omitempty"`
+	Model        string `json:"model" validate:"required"`
+	Registration string `json:"registration" validate:"required"`
 	Mileage      int    `json:"mileage"`
-	Available    string `json:"available"` // Available or Rented
+	Available    string `json:"available,omitempty"`
 }

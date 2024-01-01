@@ -11,6 +11,6 @@ type UseCaseLayer struct {
 
 func NewUsecaseLayer(repoLayer RepoLayer, log *logger.Logger) UseCaseLayer {
 	return UseCaseLayer{
-		UserUseCase: usecase.NewCar(repoLayer.CarRepo, log),
+		UserUseCase: usecase.NewCar(repoLayer.CarRepo, repoLayer.RentalRepo, log),
 	}
 }

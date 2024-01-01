@@ -91,8 +91,3 @@ func (ch *carHandler) returnCarHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Write([]byte("Car returned successfully"))
 }
-
-// func (ch *carHandler) handleValidationError(w http.ResponseWriter, err error) {
-//     // Extract validation errors and format response
-//     // ...
-// }
