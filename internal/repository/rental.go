@@ -17,26 +17,37 @@ type RentalRepository interface {
 }
 
 type rentalRepository struct {
-	db *sql.DB
+	db  *sql.DB
 	log *logger.Logger
 }
 
 func NewRental(db *sql.DB, log *logger.Logger) RentalRepository {
 	return &rentalRepository{
-		db: db,
+		db:  db,
 		log: log,
 	}
 }
 
 func (r *rentalRepository) CreateRental(ctx context.Context, rentalDto model.Rental) (int, error) {
-	var id int
+	stmt, err := r.db.Prepare(`INSERT INTO rentals(car_id, start_date, kilometers_driven) VALUES(?, ?, ?)`)
 
-	err := r.db.QueryRowContext(ctx, "INSERT INTO rentals(car_id, start_date, kilometers_driven) VALUES($1, $2, $4) RETURNING id", rentalDto.CarID, rentalDto.StartDate, rentalDto.KilometersDriven).Scan(&id)
 	if err != nil {
 		return 0, err
 	}
 
-	return id, nil
+	defer stmt.Close()
+
+	res, err := stmt.Exec(rentalDto.CarID, rentalDto.StartDate, rentalDto.KilometersDriven)
+	if err != nil {
+		return 0, err
+	}
+
+	rowID, err := res.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+
+	return int(rowID), nil
 }
 
 func (r *rentalRepository) ListRentals(ctx context.Context) ([]model.Rental, error) {
@@ -62,7 +73,7 @@ func (r *rentalRepository) ListRentals(ctx context.Context) ([]model.Rental, err
 func (r *rentalRepository) GetRentalByCarID(ctx context.Context, carID int) (*model.Rental, error) {
 	var rental model.Rental
 
-	err := r.db.QueryRowContext(ctx, "SELECT * FROM rentals WHERE car_id = $1", carID).Scan(&rental.ID, &rental.CarID, &rental.StartDate, &rental.EndDate, &rental.KilometersDriven)
+	err := r.db.QueryRowContext(ctx, "SELECT * FROM rentals WHERE car_id = ?", carID).Scan(&rental.ID, &rental.CarID, &rental.StartDate, &rental.EndDate, &rental.KilometersDriven)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +82,7 @@ func (r *rentalRepository) GetRentalByCarID(ctx context.Context, carID int) (*mo
 }
 
 func (r *rentalRepository) UpdateRentalKilometersDriven(ctx context.Context, carID int, kilometers_driven int) error {
-	_, err := r.db.ExecContext(ctx, "UPDATE rentals SET kilometers_driven = $1 WHERE car_id = $2", kilometers_driven, carID)
+	_, err := r.db.ExecContext(ctx, "UPDATE rentals SET kilometers_driven = ? WHERE car_id = ?", kilometers_driven, carID)
 	if err != nil {
 		return err
 	}
@@ -80,7 +91,7 @@ func (r *rentalRepository) UpdateRentalKilometersDriven(ctx context.Context, car
 }
 
 func (r *rentalRepository) UpdateRentalEndDate(ctx context.Context, carID int, end_date time.Time) error {
-	_, err := r.db.ExecContext(ctx, "UPDATE rentals SET end_date = $1 WHERE car_id = $2", end_date, carID)
+	_, err := r.db.ExecContext(ctx, "UPDATE rentals SET end_date = ? WHERE car_id = ?", end_date, carID)
 	if err != nil {
 		return err
 	}

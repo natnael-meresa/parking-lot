@@ -18,24 +18,30 @@ type CarUseCase interface {
 	ReturnCar(ctx context.Context, registration string, kilometers_driven float64) error
 }
 type carUseCase struct {
-	carRepo repository.CarRepository
+	carRepo    repository.CarRepository
 	rentalRepo repository.RentalRepository
-	log     *logger.Logger
+	log        *logger.Logger
 }
 
 func NewCar(r repository.CarRepository, rentalRepo repository.RentalRepository, log *logger.Logger) CarUseCase {
 	return &carUseCase{
-		carRepo: r,
+		carRepo:    r,
 		rentalRepo: rentalRepo,
-		log:     log,
+		log:        log,
 	}
 }
 
 func (c *carUseCase) CreateCar(ctx context.Context, carDto dto.Car) (int, error) {
+
+	_, err := c.carRepo.GetCarByRegistration(ctx, carDto.Registration)
+	if err == nil {
+		return 0, constant.ErrDuplicateRegistration
+	}
+
 	id, err := c.carRepo.CreateCar(ctx, model.Car{
 		Registration: carDto.Registration,
-		Model: carDto.Model,
-		Mileage: carDto.Mileage,
+		Model:        carDto.Model,
+		Mileage:      carDto.Mileage,
 	})
 
 	if err != nil {
@@ -54,11 +60,11 @@ func (c *carUseCase) ListCars(ctx context.Context) ([]dto.Car, error) {
 	var carDtos []dto.Car
 	for _, car := range cars {
 		carDtos = append(carDtos, dto.Car{
-			ID: car.ID,
+			ID:           car.ID,
 			Registration: car.Registration,
-			Model: car.Model,
-			Mileage: car.Mileage,
-			Available: car.Available,
+			Model:        car.Model,
+			Mileage:      car.Mileage,
+			Available:    car.Available,
 		})
 	}
 
@@ -74,13 +80,13 @@ func (c *carUseCase) RentCar(ctx context.Context, registration string) error {
 		return err
 	}
 
-	if car.Available == constant.Available {
+	if car.Available != constant.Available {
 		return constant.ErrAlreadyRented
 	}
 
 	_, err = c.rentalRepo.CreateRental(ctx, model.Rental{
 		StartDate: time.Now(),
-		CarID: car.ID,
+		CarID:     car.ID,
 	})
 
 	if err != nil {
@@ -132,7 +138,7 @@ func (c *carUseCase) ReturnCar(ctx context.Context, registration string, kilomet
 		return err
 	}
 
-	err = c.carRepo.UpdateCarMileage(ctx, registration, car.Mileage + int(kilometers_driven))
+	err = c.carRepo.UpdateCarMileage(ctx, registration, car.Mileage+int(kilometers_driven))
 	if err != nil {
 		return err
 	}

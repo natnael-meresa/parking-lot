@@ -14,4 +14,7 @@ var (
 
 	// ErrNotRented is returned when a car is not rented
 	ErrNotRented = errors.New("car is not rented")
+
+	// ErrDuplicateRegistration is returned when a car is already registered
+	ErrDuplicateRegistration = errors.New("car is already registered")
 )

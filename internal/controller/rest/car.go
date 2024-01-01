@@ -25,10 +25,10 @@ func newCarRoutes(handler *mux.Router, u usecase.CarUseCase, log *logger.Logger)
 
 	{
 		// handle user endpoint
-		handler.HandleFunc("/cars", r.listCarsHandler).Methods(http.MethodGet)
-		handler.HandleFunc("/cars", r.addCarHandler).Methods(http.MethodPost)
-		handler.HandleFunc("/cars/{registration}/rentals", r.rentCarHandler).Methods(http.MethodPost)
-		handler.HandleFunc("/cars/{registration}/returns", r.returnCarHandler).Methods(http.MethodPost)
+		handler.HandleFunc("", r.listCarsHandler).Methods(http.MethodGet)
+		handler.HandleFunc("", r.addCarHandler).Methods(http.MethodPost)
+		handler.HandleFunc("/{registration}/rentals", r.rentCarHandler).Methods(http.MethodPost)
+		handler.HandleFunc("/{registration}/returns", r.returnCarHandler).Methods(http.MethodPost)
 	}
 }
 
@@ -45,7 +45,9 @@ func (ch *carHandler) listCarsHandler(w http.ResponseWriter, r *http.Request) {
 func (ch *carHandler) addCarHandler(w http.ResponseWriter, r *http.Request) {
 	var newCar dto.Car
 	if err := json.NewDecoder(r.Body).Decode(&newCar); err != nil {
-		http.Error(w, "Invalid JSON request body", http.StatusBadRequest)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "invalid request body"})
 		return
 	}
 
@@ -72,13 +74,18 @@ func (ch *carHandler) rentCarHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte("Car rented successfully"))
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	json.NewEncoder(w).Encode(map[string]string{"message": "Car rented successfully"})
 }
 
 func (ch *carHandler) returnCarHandler(w http.ResponseWriter, r *http.Request) {
 	var returnRequest dto.ReturnRequest
 	if err := json.NewDecoder(r.Body).Decode(&returnRequest); err != nil {
-		http.Error(w, "Invalid JSON request body", http.StatusBadRequest)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "invalid request body"})
 		return
 	}
 
@@ -89,5 +96,8 @@ func (ch *carHandler) returnCarHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte("Car returned successfully"))
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	json.NewEncoder(w).Encode(map[string]string{"message": "Car returned successfully"})
 }

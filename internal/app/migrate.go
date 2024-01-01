@@ -31,7 +31,7 @@ func Migrate(ctx context.Context, url string, log *logger.Logger) (*migrate.Migr
 		return nil, err
 	}
 
-	if err = m.Up(); err != nil {
+	if err = m.Up(); err != nil && err != migrate.ErrNoChange {
 		log.Error(ctx, "error migrating up", zap.Error(err))
 		return nil, err
 	}

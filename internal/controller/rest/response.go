@@ -30,6 +30,7 @@ func (ch *carHandler) handleError(w http.ResponseWriter, err error) {
 
 	// Write error response with appropriate message
 	w.WriteHeader(statusCode)
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
 }
 
@@ -40,5 +41,6 @@ func (ch *carHandler) handleValidationError(w http.ResponseWriter, err error) {
 	}
 
 	w.WriteHeader(http.StatusBadRequest)
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string][]string{"errors": validationErrors})
 }
