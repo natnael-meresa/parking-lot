@@ -8,19 +8,27 @@ import (
 	"time"
 )
 
+// RentalRepository is the interface for the rental repository.
 type RentalRepository interface {
+	// CreateRental creates a new rental.
 	CreateRental(ctx context.Context, rentalDto model.Rental) (int, error)
+	// ListRentals lists all rentals.
 	ListRentals(ctx context.Context) ([]model.Rental, error)
+	// GetRentalByCarID gets a rental by car id.
 	GetRentalByCarID(ctx context.Context, carID int) (*model.Rental, error)
+	// UpdateRentalKilometersDriven updates a rental kilometers driven.
 	UpdateRentalKilometersDriven(ctx context.Context, carID int, kilometers_driven int) error
+	// UpdateRentalEndDate updates a rental end date.
 	UpdateRentalEndDate(ctx context.Context, carID int, end_date time.Time) error
 }
 
+// rentalRepository is the repository for rentals.
 type rentalRepository struct {
 	db  *sql.DB
 	log *logger.Logger
 }
 
+// NewRental creates a new rental repository.
 func NewRental(db *sql.DB, log *logger.Logger) RentalRepository {
 	return &rentalRepository{
 		db:  db,
@@ -28,6 +36,7 @@ func NewRental(db *sql.DB, log *logger.Logger) RentalRepository {
 	}
 }
 
+// CreateRental creates a new rental by executing a prepared statement.
 func (r *rentalRepository) CreateRental(ctx context.Context, rentalDto model.Rental) (int, error) {
 	stmt, err := r.db.Prepare(`INSERT INTO rentals(car_id, start_date, kilometers_driven) VALUES(?, ?, ?)`)
 
@@ -50,6 +59,7 @@ func (r *rentalRepository) CreateRental(ctx context.Context, rentalDto model.Ren
 	return int(rowID), nil
 }
 
+// ListRentals lists all rentals.
 func (r *rentalRepository) ListRentals(ctx context.Context) ([]model.Rental, error) {
 	var rentals []model.Rental
 	var rental model.Rental
@@ -70,6 +80,7 @@ func (r *rentalRepository) ListRentals(ctx context.Context) ([]model.Rental, err
 	return rentals, nil
 }
 
+// GetRentalByCarID gets a rental by car id.
 func (r *rentalRepository) GetRentalByCarID(ctx context.Context, carID int) (*model.Rental, error) {
 	var rental model.Rental
 
@@ -81,6 +92,7 @@ func (r *rentalRepository) GetRentalByCarID(ctx context.Context, carID int) (*mo
 	return &rental, nil
 }
 
+// UpdateRentalKilometersDriven updates a rental kilometers driven.
 func (r *rentalRepository) UpdateRentalKilometersDriven(ctx context.Context, carID int, kilometers_driven int) error {
 	_, err := r.db.ExecContext(ctx, "UPDATE rentals SET kilometers_driven = ? WHERE car_id = ?", kilometers_driven, carID)
 	if err != nil {
@@ -90,6 +102,7 @@ func (r *rentalRepository) UpdateRentalKilometersDriven(ctx context.Context, car
 	return nil
 }
 
+// UpdateRentalEndDate updates a rental end date.
 func (r *rentalRepository) UpdateRentalEndDate(ctx context.Context, carID int, end_date time.Time) error {
 	_, err := r.db.ExecContext(ctx, "UPDATE rentals SET end_date = ? WHERE car_id = ?", end_date, carID)
 	if err != nil {

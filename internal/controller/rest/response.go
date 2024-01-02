@@ -11,6 +11,7 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+// handleError handles error and writes appropriate response
 func (ch *carHandler) handleError(w http.ResponseWriter, err error) {
 	// Log the error
 	log.Println(err)
@@ -34,12 +35,15 @@ func (ch *carHandler) handleError(w http.ResponseWriter, err error) {
 	json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
 }
 
+// handleValidationError handles validation error and writes appropriate response
 func (ch *carHandler) handleValidationError(w http.ResponseWriter, err error) {
+	// Log the error
 	var validationErrors []string
 	for _, err := range err.(validator.ValidationErrors) {
 		validationErrors = append(validationErrors, fmt.Sprintf("%s: %s", err.Field(), err.Tag()))
 	}
 
+	// Write error response with appropriate message
 	w.WriteHeader(http.StatusBadRequest)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string][]string{"errors": validationErrors})

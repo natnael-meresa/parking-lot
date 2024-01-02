@@ -7,10 +7,12 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// NewRouter creates a new router.
 func NewRouter(app *mux.Router,
 	log *logger.Logger,
 	carUseCase usecase.CarUseCase) {
 
+	// handle car endpoint
 	carRouter := app.PathPrefix("/cars").Subrouter()
 
 	{

@@ -7,12 +7,17 @@ import (
 )
 
 const (
+	// DefaultReadTimeout is the default read timeout.
 	_defaultReadTimeout     = 5 * time.Second
+	// DefaultWriteTimeout is the default write timeout.
 	_defaultWriteTimeout    = 5 * time.Second
+	// DefaultAddr is the default address.
 	_defaultAddr            = ":80"
+	// DefaultShutdownTimeout is the default shutdown timeout.
 	_defaultShutdownTimeout = 3 * time.Second
 )
 
+// Server -.
 type Server struct {
 	server          *http.Server
 	notify          chan error
@@ -44,6 +49,7 @@ func New(handler http.Handler, opts ...Option) *Server {
 	return s
 }
 
+// start -.
 func (s *Server) start() {
 	go func() {
 		s.notify <- s.server.ListenAndServe()

@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-
+// TestCreateCar tests the CreateCar method.
 func TestCreateCar(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 
@@ -97,6 +97,8 @@ func TestCreateCar(t *testing.T) {
 	})
 }
 
+
+// TestListCars tests the ListCars method.
 func TestListCars(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 
@@ -151,6 +153,7 @@ func TestListCars(t *testing.T) {
 	})
 }
 
+// TestRentCar tests the RentCar method.
 func TestRentCar(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 

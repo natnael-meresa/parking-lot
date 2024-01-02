@@ -35,8 +35,11 @@ func Run() error {
 	if err != nil {
 		return err
 	}
+
+	// close db connection
 	defer db.Close()
 
+	// migrate db
 	m, err := Migrate(context.Background(), config.DB.URL, log)
 	if err != nil {
 		return err
